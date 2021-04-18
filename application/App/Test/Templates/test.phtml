@@ -1,0 +1,111 @@
+<div>
+    <div class="buttons">
+        <input type="text\" class="inputCode" value="ru">
+        <div class="sender">
+            Send rand request
+        </div>
+
+        <div class="getter" data-count="10">
+            Get data 10
+        </div>
+
+        <div class="getter" data-count="0">
+            Get data all
+        </div>
+    </div>
+    <div class="info" id="infoBlock">
+
+    </div>
+</div>
+
+
+<style>
+    td {
+        border: solid 1px #1B6AC1;
+    }
+    .buttons {
+        display: inline-block;
+    }
+    .info {
+        border: dashed 1px #1B6AC1;
+        margin: 10px;
+        width: 800px;
+        height: 250px;
+        display: inline-block;
+    }
+    .sender {
+        width: 200px;
+        text-align: center;
+        font-size: 22px;
+        border: dashed 1px #1B6AC1;
+        background: #1B6AC1;
+        border-radius: 12em;
+        cursor: pointer;
+        margin: 10px;
+    }
+    .getter {
+        width: 200px;
+        text-align: center;
+        font-size: 22px;
+        border: dashed 1px #38c14b;
+        background: #38c14b;
+        border-radius: 12em;
+        cursor: pointer;
+        margin: 10px;
+    }
+</style>
+
+<script>
+    $('.sender').click(function(){
+      let code = $('.inputCode')[0].value;
+      $.ajax({
+        url: 'http://23.111.202.35:8090/Stats',
+        type: 'PUT',
+        success: function(data) {
+          console.log('Success');
+          console.log(data);
+        },
+        error: function(xhr, textStatus) {
+          console.log('errror');
+            console.log(xhr.responseText);
+        },
+        data: {code: code}
+      });
+    });
+
+    $('.getter').click(function(event, el){
+      let limit = $(this).data('count');
+      $.ajax({
+        url: 'http://23.111.202.35:8090/Stats',
+        type: 'GET',
+        success: function(data) {
+          console.log('Success');
+          console.log(data);
+          let obj = JSON.parse(data);
+          let htm = '<table>' +
+            '<th>country</th>' +
+            '<th>count all</th>' +
+            '<th>count daily</th>' +
+            '<th>unique all</th>' +
+            '<th>unique daily</th>';
+          for(var item in obj) {
+            console.log(obj[item]);
+            htm += '<tr><td>' + item + '</td>' +
+                    '<td>' + obj[item]['country_counter']['all']  + '</td>' +
+                    '<td>' + obj[item]['country_counter']['daily']  + '</td>' +
+                    '<td>' + obj[item]['country_unique_counter']['all']  + '</td>' +
+                    '<td>' + obj[item]['country_unique_counter']['daily']  + '</td>' +
+                    '</tr>';
+          };
+          $('.info')[0].innerHTML = '<pre>' + htm + '</pre>';
+
+        },
+        error: function(xhr, textStatus) {
+          console.log('errror');
+          console.log(xhr.responseText);
+        },
+        data: {limit: limit, offset: 0}
+      });
+    });
+
+</script>
